@@ -1,17 +1,21 @@
 #!/usr/bin/env python 
 from evernote.api.client import EvernoteClient
+from evernote.edam.error.ttypes import EDAMSystemException
 
-from config import Settings
+import dotenv
 
-    
+
 if __name__ == '__main__':
-    config = Settings()
+    variables = dotenv.get_variables('.env')
     client = EvernoteClient(
-        token=config.EVERNOTE_PERSONAL_TOKEN,
+        token=variables['EVERNOTE_PERSONAL_TOKEN'],
         sandbox=False
     )
-    note_store = client.get_note_store()
+    try:
+        note_store = client.get_note_store()
 
-    notebooks = note_store.listNotebooks()
-    for notebook in notebooks:
-        print('%s - %s' % (notebook.guid, notebook.name))
+        notebooks = note_store.listNotebooks()
+        for notebook in notebooks:
+            print('%s - %s' % (notebook.guid, notebook.name))
+    except EDAMSystemException as err:
+        print("Error: {}".format(err._message))
